@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Reconocimiento de voz</title>
+  </head>
+  <body>
+    <div class="palabras" contenteditable></div>
+
+    <script>
+      //Evitar incompatibilidades con el speechRecognition e importar tanto la versión webkit como no webkit
+      window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      //Instanciar una constante "reconocimiento" de tipo speechRecognition
+      const reconocimiento = new SpeechRecognition();
+      //Habilitar para que reconozca una frase de corrido
+      reconocimiento.interimResults = true;
+      //Crear una variable parrafo con un parrafo
+      let p = document.createElement("p");
+      //Crear una constante palabras que contengo el contenedor ".palabras"
+      const palabras = document.querySelector(".palabras");
+      //adjuntar el parrafo a ".palabras"
+      palabras.appendChild(p);
+      //crear un event listener de 'results', con una función que reciba un evento
+      /*DENTRO DE ESE EVENT listener
+      Hacer console log de evento
+      Hacer console log de evento.results
+      crear constante "transcribir" que tenga un Array.From(evento.results)
+      A ese array loopearlo con un map, que retorne result[0] y a eso mismo mapearlo con una función que retorne result.transcript. A todo esto hacerle un join("")
+      quedaría map(result => result[0]).map(result => result.transcript).join("")
+      hacer console log de transcribir
+      añadir al parrafo el texto de transcribir con text content
+      hacer console log de evento.results[0]
+      si evento.results[0].isFinal entonces sobreescribir parrafo con document.createElement(p)
+      adjuntar el nuevo párrafo a palabras
+      si transcribir.includes("Hello")...
+      */
+      reconocimiento.addEventListener("results", function(e) {
+        console.log(e);
+        console.log(e.results);
+        const transcribir = Array.from(e.results)
+          .map(function(result) {
+            return result[0];
+          })
+          .map(function(result) {
+            return result.transcript;
+          })
+          .join("");
+
+        console.log(transcribir);
+        p.textContent = transcribir;
+        console.log(e.results[0]);
+        if (e.results[0].isFinal) {
+          p = document.createElement("p");
+          palabras.appendChild(p);
+        }
+        if (transcribir.includes("Hello")) {
+          console.log(
+            "El usuario presenta un inclinado interés a decir Hello, deberíamos llenarlo de publicidad acerca de hello"
+          );
+        }
+        if (transcribir.includes("hello") && transcribir.includes("dogs")) {
+          console.log(
+            "El usuario incluyó hello y dogs, quizás quiere un perro"
+          );
+        }
+      });
+      // FUERA
+      //añadir un event listener a reconocimiento de 'end' que haga reconocimiento.start
+      reconocimiento.addEventListener("end", reconocimiento.start);
+      //reconocimiento.start()
+      reconocimiento.start();
+    </script>
+    <style>
+      html {
+        font-size: 10px;
+      }
+      body {
+        background: #ffc600;
+        font-family: "helvetica neue";
+        font-weight: 200;
+        font-size: 20px;
+      }
+      .palabras {
+        max-width: 500px;
+        margin: 50px auto;
+        background: white;
+        border-radius: 5px;
+        box-shadow: 10px 10px 0 rgba(0, 0, 0, 0.1);
+        padding: 1rem 2rem 1rem 5rem;
+        background: -webkit-gradient(
+            linear,
+            0 0,
+            0 100%,
+            from(#d9eaf3),
+            color-stop(4%, #fff)
+          )
+          0 4px;
+        background-size: 100% 3rem;
+        position: relative;
+        line-height: 3rem;
+      }
+      p {
+        margin: 0 0 3rem;
+      }
+      .palabras:before {
+        content: "";
+        position: absolute;
+        width: 4px;
+        top: 0;
+        left: 30px;
+        bottom: 0;
+        border: 1px solid;
+        border-color: transparent #efe4e4;
+      }
+    </style>
+  </body>
+</html>
